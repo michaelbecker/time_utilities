@@ -54,18 +54,33 @@
 #define US_IN_MS        (1000L)
 
 
+/**
+ *  Wrapper class for working with c style timespec structures.
+ */
 class CTimeSpec 
 {
     public:
 
+        /**
+         *  Default null ctor.
+         */
         CTimeSpec() 
         : ts {0, 0}
         {}
 
+        /**
+         *  ctor 
+         *  @param ms total milliseconds used to init the class.
+         */
         CTimeSpec(unsigned int ms) 
         : ts {ms / MS_IN_SECOND, (ms % MS_IN_SECOND) * NS_IN_MS}
         {}
 
+        /**
+         *  ctor
+         *  @param t timespec structure used to init the class.
+         *  This ctor guarantees that the structure is normalized.
+         */
         CTimeSpec(struct timespec t)
         {
             while (t.tv_nsec >= NS_IN_SECOND) {
@@ -80,6 +95,12 @@ class CTimeSpec
             ts = t;
         }
 
+        /**
+         *  ctor
+         *  @param sec seconds used to init the sec portion.
+         *  @param nsec nseconds used to init the nsec portion.
+         *  This ctor guarantees that the structure is normalized.
+         */
         CTimeSpec(time_t sec, long nsec) 
         {
             while (nsec >= NS_IN_SECOND) {
@@ -95,6 +116,10 @@ class CTimeSpec
             ts.tv_nsec = nsec;
         }
 
+        /**
+         *  Static factory returning a CTimeSpec that represents "now"
+         *  in wall clock time. See CLOCK_REALTIME.
+         */
         static CTimeSpec Now()
         {
             struct timespec ts;
@@ -102,6 +127,10 @@ class CTimeSpec
             return CTimeSpec {ts};
         }
 
+        /**
+         *  Static factory returning a CTimeSpec that represents "now"
+         *  in monotonic time. See CLOCK_MONOTONIC.
+         */
         static CTimeSpec NowMonotonic()
         {
             struct timespec ts;
@@ -109,6 +138,10 @@ class CTimeSpec
             return CTimeSpec {ts};
         }
 
+        /**
+         *  Static factory returning a CTimeSpec that represents "now"
+         *  in monotonic raw time. See CLOCK_MONOTONIC_RAW.
+         */
         static CTimeSpec NowMonotonicRaw()
         {
             struct timespec ts;
@@ -116,11 +149,19 @@ class CTimeSpec
             return CTimeSpec {ts};
         }
 
+        /**
+         *  Utility function to return a copy of the internal 
+         *  timespec structure.
+         */
         struct timespec c_timespec()
         {
             return ts;
         }
 
+        /**
+         *  Adds a CTimeSpec to this one. 
+         *  Guarantees the result is normalized.
+         */
         CTimeSpec& operator+=(const CTimeSpec& rhs)
         {
             ts.tv_sec += rhs.ts.tv_sec;
@@ -132,6 +173,10 @@ class CTimeSpec
             return *this;
         }
 
+        /**
+         *  Subtracts a CTimeSpec to this one. 
+         *  Guarantees the result is normalized.
+         */
         CTimeSpec& operator-=(const CTimeSpec& rhs)
         {
             ts.tv_sec -= rhs.ts.tv_sec;
@@ -143,6 +188,10 @@ class CTimeSpec
             return *this;
         }
 
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for non-equality.
+         */
         bool operator!=(const CTimeSpec& rhs) const
         {
             if (ts.tv_sec != rhs.ts.tv_sec)
@@ -153,11 +202,19 @@ class CTimeSpec
                 return false;
         }
 
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for equality.
+         */
         bool operator==(const CTimeSpec& rhs) const
         {
             return !(*this != rhs);
         }
 
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for less than.
+         */
         bool operator<(const CTimeSpec& rhs) const 
         {
             if (ts.tv_sec < rhs.ts.tv_sec)
@@ -168,6 +225,10 @@ class CTimeSpec
                 return false;
         }
         
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for greater than.
+         */
         bool operator>(const CTimeSpec& rhs) const 
         {
             if (ts.tv_sec > rhs.ts.tv_sec)
@@ -178,6 +239,10 @@ class CTimeSpec
                 return false;
         }
 
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for less than or equals to.
+         */
         bool operator<=(const CTimeSpec& rhs) const
         {
             if (*this < rhs)
@@ -188,6 +253,10 @@ class CTimeSpec
                 return false;
         }
 
+        /**
+         *  Compares a CTimeSpecs against this one 
+         *  for greater than or equals to.
+         */
         bool operator>=(const CTimeSpec& rhs) const
         {
             if (*this > rhs)
@@ -199,17 +268,23 @@ class CTimeSpec
         }
 
     private:
+        /**
+         *  The internal data struct this class is wrapping.
+         */
         struct timespec ts;
 
-    ///
-    ///  Operators
-    ///
+    /**
+     *  Output operator for std::ostreams.
+     */
     friend std::ostream& operator<< (std::ostream& os, const CTimeSpec& ts)
     {
         os << "(" << ts.ts.tv_sec << " sec, " << ts.ts.tv_nsec << " nsec)";
         return os;
     }
 
+    /**
+     *  Adds two CTimeSpecs and returns a new one which is the sum.
+     */
     friend CTimeSpec operator+ (const CTimeSpec& lhs, const CTimeSpec& rhs)
     {
         struct timespec sum;
@@ -223,6 +298,10 @@ class CTimeSpec
         return CTimeSpec(sum);
     }
 
+    /**
+     *  Subtracts two CTimeSpecs and returns a new one which is the 
+     *  difference.
+     */
     friend CTimeSpec operator- (const CTimeSpec& lhs, const CTimeSpec& rhs)
     {
         struct timespec difference;
