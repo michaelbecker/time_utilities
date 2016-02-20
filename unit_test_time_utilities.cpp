@@ -177,6 +177,48 @@ void TestSubtract()
 }
 
 
+void TestCompare()
+{
+    CTimeSpec A, B;
+
+    A = {10, 0};
+    B = {5, 0};
+    assert(A > B);
+    assert(A != B);
+    assert(A >= B);
+
+    A = {10, 0};
+    B = {50, 0};
+    assert(A < B);
+    assert(A != B);
+    assert(A <= B);
+
+    A = {44, 0};
+    B = {44, 0};
+    assert(A == B);
+    assert(A <= B);
+    assert(A >= B);
+
+    A = {5, 30};
+    B = {5, 29};
+    assert(A > B);
+    assert(A != B);
+    assert(A >= B);
+
+    A = {5, 16};
+    B = {5, 61};
+    assert(A < B);
+    assert(A != B);
+    assert(A <= B);
+
+    A = {5, 777};
+    B = {5, 777};
+    assert(A == B);
+    assert(A <= B);
+    assert(A >= B);
+}
+
+
 int main()
 {
     std::cout << "Unit testing C++ based time utilities" << std::endl;
@@ -185,6 +227,7 @@ int main()
     TestCoutOperator();
     TestAdd();
     TestSubtract();
+    TestCompare();
 
     std::cout << "passed" << std::endl;
     return 0;

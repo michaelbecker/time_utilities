@@ -8,8 +8,6 @@
  *  lose precision, and by using the functions in this file simply
  *  isn't needed.
  *
- *  We also attempt to treat this class as immutable.
- *
  *  This header requires C++11 support.
  *
  *  Naming convention is Pascal case, with the dreaded "C" prefix 
@@ -206,7 +204,7 @@ class CTimeSpec
     ///
     ///  Operators
     ///
-    friend std::ostream& operator<< (std::ostream& os, const CTimeSpec& ts) 
+    friend std::ostream& operator<< (std::ostream& os, const CTimeSpec& ts)
     {
         os << "(" << ts.ts.tv_sec << " sec, " << ts.ts.tv_nsec << " nsec)";
         return os;
