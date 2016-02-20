@@ -145,8 +145,62 @@ class CTimeSpec
             return *this;
         }
 
-    private:
+        bool operator!=(const CTimeSpec& rhs) const
+        {
+            if (ts.tv_sec != rhs.ts.tv_sec)
+                return true;
+            else if (ts.tv_nsec != rhs.ts.tv_nsec)
+                return true;
+            else 
+                return false;
+        }
 
+        bool operator==(const CTimeSpec& rhs) const
+        {
+            return !(*this != rhs);
+        }
+
+        bool operator<(const CTimeSpec& rhs) const 
+        {
+            if (ts.tv_sec < rhs.ts.tv_sec)
+                return true;
+            else if (ts.tv_nsec < rhs.ts.tv_nsec)
+                return true;
+            else 
+                return false;
+        }
+        
+        bool operator>(const CTimeSpec& rhs) const 
+        {
+            if (ts.tv_sec > rhs.ts.tv_sec)
+                return true;
+            else if (ts.tv_nsec > rhs.ts.tv_nsec)
+                return true;
+            else 
+                return false;
+        }
+
+        bool operator<=(const CTimeSpec& rhs) const
+        {
+            if (*this < rhs)
+                return true;
+            else if (*this == rhs)
+                return true;
+            else 
+                return false;
+        }
+
+        bool operator>=(const CTimeSpec& rhs) const
+        {
+            if (*this > rhs)
+                return true;
+            else if (*this == rhs)
+                return true;
+            else 
+                return false;
+        }
+
+    private:
         struct timespec ts;
 
     ///
