@@ -50,10 +50,6 @@
     x_.tv_sec = sec_; \
     x_.tv_nsec = nsec_;
 
-#define ASSERT_TS_VALID(x_, sec_, nsec_) \
-    assert(x_.tv_sec == sec_);  \
-    assert(x_.tv_nsec == nsec_);
-
 #define ASSERT_CTS_VALID(X_, sec_, nsec_) \
 {\
     struct timespec X_ ## tmp_ = X_.c_timespec(); \
@@ -62,7 +58,7 @@
 }
 
 
-void TestCtors()
+void TestCtorsCTimeSpec()
 {
     struct timespec a;
 
@@ -108,7 +104,7 @@ void TestCtors()
 }
 
 
-void TestCoutOperator()
+void TestCoutOperatorCTimeSpec()
 {
     struct timespec a {12, 13};
     CTimeSpec A {a};
@@ -117,7 +113,7 @@ void TestCoutOperator()
 }
 
 
-void TestAdd()
+void TestAddCTimeSpec()
 {
     CTimeSpec A, B, C;
 
@@ -151,7 +147,7 @@ void TestAdd()
 }
 
 
-void TestSubtract()
+void TestSubtractCTimeSpec()
 {
     CTimeSpec A, B, C;
 
@@ -177,9 +173,183 @@ void TestSubtract()
 }
 
 
-void TestCompare()
+void TestCompareCTimeSpec()
 {
     CTimeSpec A, B;
+
+    A = {10, 0};
+    B = {5, 0};
+    assert(A > B);
+    assert(A != B);
+    assert(A >= B);
+
+    A = {10, 0};
+    B = {50, 0};
+    assert(A < B);
+    assert(A != B);
+    assert(A <= B);
+
+    A = {44, 0};
+    B = {44, 0};
+    assert(A == B);
+    assert(A <= B);
+    assert(A >= B);
+
+    A = {5, 30};
+    B = {5, 29};
+    assert(A > B);
+    assert(A != B);
+    assert(A >= B);
+
+    A = {5, 16};
+    B = {5, 61};
+    assert(A < B);
+    assert(A != B);
+    assert(A <= B);
+
+    A = {5, 777};
+    B = {5, 777};
+    assert(A == B);
+    assert(A <= B);
+    assert(A >= B);
+}
+
+
+#define PRINT_TV(x_) \
+    std::cout   << #x_<< ".tv_sec = " << x_.tv_sec << " " \
+                << #x_<< ".tv_usec = " << x_.tv_usec \
+                << std::endl;
+
+#define INIT_TV(x_, sec_, usec_) \
+    x_.tv_sec = sec_; \
+    x_.tv_usec = usec_;
+
+#define ASSERT_CTV_VALID(X_, sec_, usec_) \
+{\
+    struct timeval X_ ## tmp_ = X_.c_timeval(); \
+    assert(X_ ## tmp_.tv_sec == sec_);  \
+    assert(X_ ## tmp_.tv_usec == usec_); \
+}
+
+
+void TestCtorsCTimeVal()
+{
+    struct timeval a;
+
+    INIT_TV(a, 12, 13);
+    CTimeVal A {a};
+    ASSERT_CTV_VALID(A, 12, 13);
+    
+    CTimeVal AA {14, 15};
+    ASSERT_CTV_VALID(AA, 14, 15);
+    
+    CTimeVal B {1000};
+    ASSERT_CTV_VALID(B, 1, 0);
+
+    CTimeVal C {1};
+    ASSERT_CTV_VALID(C, 0, 1000);
+
+    CTimeVal D {99999};
+    ASSERT_CTV_VALID(D, 99, 999000);
+
+    INIT_TV(a, 11, 123456);
+    CTimeVal E {a};
+    ASSERT_CTV_VALID(E, 11, 123456);
+
+    INIT_TV(a, 10, 1000000);
+    CTimeVal F {a};
+    ASSERT_CTV_VALID(F, 11, 0);
+
+    INIT_TV(a, 10, 2147483647);
+    CTimeVal G {a};
+    ASSERT_CTV_VALID(G, 2157, 483647);
+
+    INIT_TV(a, 10, -1);
+    CTimeVal H {a};
+    ASSERT_CTV_VALID(H, 9, 999999);
+
+    INIT_TV(a, 10, -999999);
+    CTimeVal I {a};
+    ASSERT_CTV_VALID(I, 9, 1);
+
+    INIT_TV(a, 3000, -2147483647);
+    CTimeVal J {a};
+    ASSERT_CTV_VALID(J, 852, 516353);
+}
+
+
+void TestCoutOperatorCTimeVal()
+{
+    struct timeval a {12, 13};
+    CTimeVal A {a};
+    PRINT_TV(a);
+    std::cout << A << std::endl;
+}
+
+
+void TestAddCTimeVal()
+{
+    CTimeVal A, B, C;
+
+    A = {1, 10};
+    B = {2, 20};
+    C = A + B;
+    ASSERT_CTV_VALID(C, 3, 30);
+
+    A = {1, 999999};
+    B = {1, 2};
+    C = A + B;
+    ASSERT_CTV_VALID(C, 3, 1);
+
+    A = {1, 999999};
+    C = A + A;
+    ASSERT_CTV_VALID(C, 3, 999998);
+
+    A = {1, 10};
+    B = {2, 20};
+    A += B;
+    ASSERT_CTV_VALID(A, 3, 30);
+
+    A = {1, 999999};
+    B = {1, 2};
+    A += B;
+    ASSERT_CTV_VALID(A, 3, 1);
+
+    A = {1, 999999};
+    A += A;
+    ASSERT_CTV_VALID(A, 3, 999998);
+}
+
+
+void TestSubtractCTimeVal()
+{
+    CTimeVal A, B, C;
+
+    A = {10, 100};
+    B = {2, 20};
+    C = A - B;
+    ASSERT_CTV_VALID(C, 8, 80);
+
+    A = {100, 1};
+    B = {1, 20};
+    C = A - B;
+    ASSERT_CTV_VALID(C, 98, 999981);
+
+    A = {10, 100};
+    B = {2, 20};
+    A -= B;
+    ASSERT_CTV_VALID(A, 8, 80);
+
+    A = {100, 1};
+    B = {1, 20};
+    A -= B;
+    ASSERT_CTV_VALID(A, 98, 999981);
+}
+
+
+void TestCompareCTimeVal()
+{
+    CTimeVal A, B;
 
     A = {10, 0};
     B = {5, 0};
@@ -223,11 +393,17 @@ int main()
 {
     std::cout << "Unit testing C++ based time utilities" << std::endl;
     
-    TestCtors();
-    TestCoutOperator();
-    TestAdd();
-    TestSubtract();
-    TestCompare();
+    TestCtorsCTimeSpec();
+    TestCoutOperatorCTimeSpec();
+    TestAddCTimeSpec();
+    TestSubtractCTimeSpec();
+    TestCompareCTimeSpec();
+
+    TestCtorsCTimeVal();
+    TestCoutOperatorCTimeVal();
+    TestAddCTimeVal();
+    TestSubtractCTimeVal();
+    TestCompareCTimeVal();
 
     std::cout << "passed" << std::endl;
     return 0;
