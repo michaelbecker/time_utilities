@@ -389,6 +389,49 @@ void TestCompareCTimeVal()
 }
 
 
+void TestConversions()
+{
+    struct timeval a;
+    INIT_TV(a, 33, 44);
+    CTimeSpec A1 {a};
+    ASSERT_CTS_VALID(A1, 33, 44000);
+
+    INIT_TV(a, 33, 1000000);
+    CTimeSpec A2 {a};
+    ASSERT_CTS_VALID(A2, 34, 0);
+
+    INIT_TV(a, 33, -1);
+    CTimeSpec A3 {a};
+    ASSERT_CTS_VALID(A3, 32, 999999000);
+
+    
+    struct timespec b;
+    INIT_TS(b, 33, 999);
+    CTimeVal B1 {b};
+    ASSERT_CTV_VALID(B1, 33, 0);
+
+    INIT_TS(b, 12, 1000);
+    CTimeVal B2 {b};
+    ASSERT_CTV_VALID(B2, 12, 1);
+
+    INIT_TS(b, 12, 999999999);
+    CTimeVal B3 {b};
+    ASSERT_CTV_VALID(B3, 12, 999999);
+
+    INIT_TS(b, 12, 1999999999);
+    CTimeVal B4 {b};
+    ASSERT_CTV_VALID(B4, 13, 999999);
+
+    INIT_TS(b, 33, -999);
+    CTimeVal B5 {b};
+    ASSERT_CTV_VALID(B5, 33, 0);
+
+    INIT_TS(b, 12, -1000);
+    CTimeVal B6 {b};
+    ASSERT_CTV_VALID(B6, 11, 999999);
+}
+
+
 int main()
 {
     std::cout << "Unit testing C++ based time utilities" << std::endl;
@@ -404,6 +447,8 @@ int main()
     TestAddCTimeVal();
     TestSubtractCTimeVal();
     TestCompareCTimeVal();
+
+    TestConversions();
 
     std::cout << "passed" << std::endl;
     return 0;
