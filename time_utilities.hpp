@@ -436,6 +436,14 @@ class CTimeVal
         }
 
         /**
+         *  ctor - create a CTimeVal class from a CTimeSpec class.
+         *  @param s Instance of a CTimeSPec class.
+         */
+        CTimeVal(CTimeSpec s) 
+            : CTimeVal(s.c_timespec())
+        {}
+        
+        /**
          *  Static factory returning a CTimeVal that represents "now"
          *  in wall clock time. See CLOCK_REALTIME.
          */
